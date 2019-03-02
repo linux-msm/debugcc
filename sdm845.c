@@ -101,13 +101,13 @@ static struct debug_mux disp_cc = {
 	.phys = 0xaf00000,
 	.size = 0x10000,
 
-	.enable_reg = 0x6008,
+	.enable_reg = 0x600c,
 	.enable_mask = BIT(0),
 
 	.mux_reg = 0x6000,
 	.mux_mask = 0xff,
 
-	.div_reg = 0x6004,
+	.div_reg = 0x6008,
 	.div_mask = 0x3,
 };
 
