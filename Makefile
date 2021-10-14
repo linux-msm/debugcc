@@ -3,7 +3,7 @@ OUT := debugcc
 CC=aarch64-linux-gnu-gcc
 
 CFLAGS := -O2 -Wall -g
-LDFLAGS := 
+LDFLAGS := -static -static-libgcc
 prefix := /usr/local
 
 SRCS := debugcc.c qcs404.c sdm845.c
