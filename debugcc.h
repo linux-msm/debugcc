@@ -48,6 +48,7 @@ struct debug_mux {
 	unsigned int div_reg;
 	unsigned int div_shift;
 	unsigned int div_mask;
+	unsigned int div_val;
 
 	unsigned int xo_div4_reg;
 	unsigned int debug_ctl_reg;
@@ -61,11 +62,9 @@ struct measure_clk {
 	char *name;
 	struct debug_mux *primary;
 	int mux;
-	int post_div;
 
 	struct debug_mux *leaf;
 	int leaf_mux;
-	int leaf_div;
 
 	unsigned int fixed_div;
 };
