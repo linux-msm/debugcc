@@ -80,7 +80,7 @@ static unsigned int measure_ticks(struct debug_mux *gcc, unsigned int ticks)
 	return val;
 }
 
-static void mux_enable(struct debug_mux *mux, int selector, int div)
+static void mux_enable(struct debug_mux *mux, int selector)
 {
 	uint32_t val;
 
@@ -92,7 +92,7 @@ static void mux_enable(struct debug_mux *mux, int selector, int div)
 	if (mux->div_mask) {
 		val = readl(mux->base + mux->div_reg);
 		val &= ~mux->div_mask;
-		val |= (div - 1) << mux->div_shift;
+		val |= (mux->div_val - 1) << mux->div_shift;
 		writel(val, mux->base + mux->div_reg);
 	}
 
@@ -137,9 +137,9 @@ static void measure(const struct measure_clk *clk)
 	}
 
 	if (clk->leaf)
-		mux_enable(clk->leaf, clk->leaf_mux, clk->leaf_div);
+		mux_enable(clk->leaf, clk->leaf_mux);
 
-	mux_enable(clk->primary, clk->mux, clk->post_div);
+	mux_enable(clk->primary, clk->mux);
 
 	writel(1, gcc->base + gcc->xo_div4_reg);
 
@@ -161,10 +161,11 @@ static void measure(const struct measure_clk *clk)
 	if (clk->leaf)
 		mux_disable(clk->leaf);
 
-	if (clk->leaf)
-		raw_count_full *= clk->leaf_div;
+	if (clk->leaf && clk->leaf->div_val)
+		raw_count_full *= clk->leaf->div_val;
 
-	raw_count_full *= clk->post_div;
+	if (clk->primary->div_val)
+		raw_count_full *= clk->primary->div_val;
 
 	if (clk->fixed_div)
 		raw_count_full *= clk->fixed_div;
