@@ -15,5 +15,7 @@ $(OUT): $(OBJS)
 	ln -f $(OUT) sdm845-debugcc
 	ln -f $(OUT) sm8350-debugcc
 
+$(OBJS): %.o: debugcc.h
+
 clean:
 	rm -f $(OUT) $(OBJS) *-debugcc
