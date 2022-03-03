@@ -74,6 +74,7 @@ struct debugcc_platform {
 	const struct measure_clk *clocks;
 };
 
+extern struct debugcc_platform msm8936_debugcc;
 extern struct debugcc_platform qcs404_debugcc;
 extern struct debugcc_platform sdm845_debugcc;
 extern struct debugcc_platform sm8350_debugcc;
