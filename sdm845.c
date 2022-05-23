@@ -71,6 +71,7 @@ static struct debug_mux gcc = {
 static struct debug_mux cam_cc = {
 	.phys = 0xad00000,
 	.size = 0x10000,
+	.block_name = "cam",
 
 	.enable_reg = 0xc008,
 	.enable_mask = BIT(0),
@@ -85,6 +86,7 @@ static struct debug_mux cam_cc = {
 static struct debug_mux cpu = {
 	.phys = 0x17970000,
 	.size = 4096,
+	.block_name = "cpu",
 
 	.enable_reg = 0x18,
 	.enable_mask = BIT(0),
@@ -101,6 +103,7 @@ static struct debug_mux cpu = {
 static struct debug_mux disp_cc = {
 	.phys = 0xaf00000,
 	.size = 0x10000,
+	.block_name = "disp",
 
 	.enable_reg = 0x600c,
 	.enable_mask = BIT(0),
@@ -115,6 +118,7 @@ static struct debug_mux disp_cc = {
 static struct debug_mux gpu_cc = {
 	.phys = 0x5090000,
 	.size = 0x9000,
+	.block_name = "gpu",
 
 	.enable_reg = 0x1100,
 	.enable_mask = BIT(0),
@@ -129,6 +133,7 @@ static struct debug_mux gpu_cc = {
 static struct debug_mux video_cc = {
 	.phys = 0xab00000,
 	.size = 0x10000,
+	.block_name = "video",
 
 	.enable_reg = 0xa58,
 	.enable_mask = BIT(0),

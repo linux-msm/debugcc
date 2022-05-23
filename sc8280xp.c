@@ -61,6 +61,7 @@ static struct debug_mux gcc = {
 static struct debug_mux disp0_cc = {
 	.phys = 0xaf00000,
 	.size = 0x20000,
+	.block_name = "disp0",
 
 	.enable_reg = 0x500c,
 	.enable_mask = BIT(0),
@@ -76,6 +77,7 @@ static struct debug_mux disp0_cc = {
 static struct debug_mux disp1_cc = {
 	.phys = 0x22100000,
 	.size = 0x20000,
+	.block_name = "disp1",
 
 	.enable_reg = 0x500c,
 	.enable_mask = BIT(0),
