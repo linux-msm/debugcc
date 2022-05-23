@@ -227,12 +227,26 @@ static const struct measure_clk *find_clock(const struct debugcc_platform *platf
 	return NULL;
 }
 
-static void list_clocks(const struct debugcc_platform *platform)
+static bool clock_from_block(const struct measure_clk *clk, const char *block_name)
+{
+	return  !block_name ||
+		(!clk->leaf && !strcmp(block_name, CORE_CC_BLOCK)) ||
+		(clk->leaf && clk->leaf->block_name && !strcmp(block_name, clk->leaf->block_name));
+}
+
+static void list_clocks_block(const struct debugcc_platform *platform, const char *block_name)
 {
 	const struct measure_clk *clk;
 
-	for (clk = platform->clocks; clk->name; clk++)
-		printf("%s\n", clk->name);
+	for (clk = platform->clocks; clk->name; clk++) {
+		if (!clock_from_block(clk, block_name))
+			continue;
+
+		if (clk->leaf && clk->leaf->block_name)
+			printf("%-40s %s\n", clk->name, clk->leaf->block_name);
+		else
+			printf("%s\n", clk->name);
+	}
 }
 
 static int mmap_mux(int devmem, struct debug_mux *mux)
@@ -279,8 +293,8 @@ static void usage(void)
 {
 	const struct debugcc_platform **p;
 
-	fprintf(stderr, "debugcc <-p platform> <-a | -l | clk>\n");
-	fprintf(stderr, "<platform>-debugcc <-a | -l | clk>\n");
+	fprintf(stderr, "debugcc <-p platform> [-b blk] <-a | -l | clk>\n");
+	fprintf(stderr, "<platform>-debugcc [-b blk] <-a | -l | clk>\n");
 
 	fprintf(stderr, "available platforms:");
 	for (p = platforms; *p; p++)
@@ -296,14 +310,18 @@ int main(int argc, char **argv)
 	const struct measure_clk *clk = NULL;
 	bool do_list_clocks = false;
 	bool all_clocks = false;
+	const char *block_name = NULL;
 	int devmem;
 	int opt;
 	int ret;
 
-	while ((opt = getopt(argc, argv, "alp:")) != -1) {
+	while ((opt = getopt(argc, argv, "ab:lp:")) != -1) {
 		switch (opt) {
 		case 'a':
 			all_clocks = true;
+			break;
+		case 'b':
+			block_name = strdup(optarg);
 			break;
 		case 'l':
 			do_list_clocks = true;
@@ -324,7 +342,7 @@ int main(int argc, char **argv)
 	}
 
 	if (do_list_clocks) {
-		list_clocks(platform);
+		list_clocks_block(platform, block_name);
 		exit(0);
 	}
 
@@ -350,8 +368,11 @@ int main(int argc, char **argv)
 	if (clk) {
 		measure(clk);
 	} else {
-		for (clk = platform->clocks; clk->name; clk++)
-			measure(clk);
+		for (clk = platform->clocks; clk->name; clk++) {
+			if (clock_from_block(clk, block_name)) {
+				measure(clk);
+			}
+		}
 	}
 
 	return 0;

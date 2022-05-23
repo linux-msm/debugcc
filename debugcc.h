@@ -33,9 +33,12 @@
 
 #define BIT(x) (1 << (x))
 
+#define CORE_CC_BLOCK "core"
+
 struct debug_mux {
 	unsigned long phys;
 	void *base;
+	const char *block_name;
 	size_t size;
 
 	unsigned int enable_reg;
