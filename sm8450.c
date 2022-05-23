@@ -79,7 +79,6 @@ static struct debug_mux apss_cc = {
 #endif
 
 /* All leaf clocks are disabled for now untill we enable corresponding GDSCs */
-#if 0
 static struct debug_mux cam_cc = {
 	.phys = 0xade0000,
 	.size = 0x20000,
@@ -139,7 +138,6 @@ static struct debug_mux video_cc = {
 	.div_mask = 0x7,
 	.div_val = 3,
 };
-#endif
 
 /*
 struct measure_clk {
@@ -164,7 +162,6 @@ static struct measure_clk sm8450_clocks[] = {
 	{ "measure_only_apcs_l3_post_acd_clk", &gcc, 0x117, &apss_cc, 0x6, 4 },
 	{ "measure_only_apcs_silver_post_acd_clk", &gcc, 0x117, &apss_cc, 0x2, 4 },
 #endif
-#if 0
 /* cam_cc_debug_mux is 0x6b */
 	{ "cam_cc_bps_ahb_clk", &gcc, 0x6b, &cam_cc, 0x17 },
 	{ "cam_cc_bps_clk", &gcc, 0x6b, &cam_cc, 0x18 },
@@ -287,7 +284,6 @@ static struct measure_clk sm8450_clocks[] = {
 	{ "disp_cc_mdss_vsync_clk", &gcc, 0x71, &disp_cc, 0x14 },
 	{ "disp_cc_sleep_clk", &gcc, 0x71, &disp_cc, 0x45 },
 	{ "disp_cc_xo_clk", &gcc, 0x71, &disp_cc, 0x44 },
-#endif
 // gcc
 	//{ "apss_cc_debug_mux", &gcc, 0x117 },
 	//{ "cam_cc_debug_mux", &gcc, 0x6B },
@@ -416,7 +412,6 @@ static struct measure_clk sm8450_clocks[] = {
 	{ "usb3_phy_wrapper_gcc_usb30_pipe_clk", &gcc, 0x9D },
 	//{ "video_cc_debug_mux", &gcc, 0x7A },
 	{ "mc_cc_debug_mux", &gcc, 0x100 },
-#if 0
 /* gpu_cc_debug_mux is 0x16e */
 	{ "gpu_cc_ahb_clk", &gcc, 0x16e, &gpu_cc, 0x16 },
 	{ "gpu_cc_crc_ahb_clk", &gcc, 0x16e, &gpu_cc, 0x17 },
@@ -449,7 +444,6 @@ static struct measure_clk sm8450_clocks[] = {
 	{ "video_cc_mvs1c_clk", &gcc, 0x7a, &video_cc, 0x9 },
 	{ "video_cc_sleep_clk", &gcc, 0x7a, &video_cc, 0xC },
 	{ "video_cc_xo_clk", &gcc, 0x7a, &video_cc, 0xB },
-#endif
 	{}
 };
 
