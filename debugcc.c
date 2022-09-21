@@ -133,6 +133,7 @@ static void measure(const struct measure_clk *clk)
 	unsigned long raw_count_short;
 	unsigned long raw_count_full;
 	struct debug_mux *gcc = clk->primary;
+	unsigned long xo_div4;
 
 	if (!leaf_enabled(gcc, clk->leaf)) {
 		printf("%50s: skipping\n", clk->name);
@@ -144,12 +145,13 @@ static void measure(const struct measure_clk *clk)
 
 	mux_enable(clk->primary, clk->mux);
 
-	writel(1, gcc->base + gcc->xo_div4_reg);
+	xo_div4 = readl(gcc->base + gcc->xo_div4_reg);
+	writel(xo_div4 | 1, gcc->base + gcc->xo_div4_reg);
 
 	raw_count_short = measure_ticks(gcc, 0x1000);
 	raw_count_full = measure_ticks(gcc, 0x10000);
 
-	writel(0, gcc->base + gcc->xo_div4_reg);
+	writel(xo_div4, gcc->base + gcc->xo_div4_reg);
 
 	if (raw_count_full == raw_count_short) {
 		printf("%50s: off\n", clk->name);
