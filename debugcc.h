@@ -56,6 +56,9 @@ struct debug_mux {
 
 	unsigned int ahb_reg;
 	unsigned int ahb_mask;
+
+	void (*premeasure)(struct debug_mux *mux);
+	void (*postmeasure)(struct debug_mux *mux);
 };
 
 struct measure_clk {
@@ -72,7 +75,12 @@ struct measure_clk {
 struct debugcc_platform {
 	const char *name;
 	const struct measure_clk *clocks;
+	int (*premap)(int devmem);
 };
+
+int mmap_mux(int devmem, struct debug_mux *mux);
+void mux_enable(struct debug_mux *mux);
+void mux_disable(struct debug_mux *mux);
 
 extern struct debugcc_platform msm8936_debugcc;
 extern struct debugcc_platform msm8996_debugcc;

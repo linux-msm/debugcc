@@ -84,7 +84,7 @@ static unsigned int measure_ticks(struct debug_mux *gcc, unsigned int ticks)
 	return val;
 }
 
-static void mux_enable(struct debug_mux *mux, int selector)
+static void mux_prepare_enable(struct debug_mux *mux, int selector)
 {
 	uint32_t val;
 
@@ -100,14 +100,27 @@ static void mux_enable(struct debug_mux *mux, int selector)
 		writel(val, mux->base + mux->div_reg);
 	}
 
+	mux_enable(mux);
+}
+
+void mux_enable(struct debug_mux *mux)
+{
+	uint32_t val;
+
 	val = readl(mux->base + mux->enable_reg);
 	val |= mux->enable_mask;
 	writel(val, mux->base + mux->enable_reg);
+
+	if (mux->premeasure)
+		mux->premeasure(mux);
 }
 
-static void mux_disable(struct debug_mux *mux)
+void mux_disable(struct debug_mux *mux)
 {
 	uint32_t val;
+
+	if (mux->postmeasure)
+		mux->postmeasure(mux);
 
 	val = readl(mux->base + mux->enable_reg);
 	val &= ~mux->enable_mask;
@@ -142,9 +155,9 @@ static void measure(const struct measure_clk *clk)
 	}
 
 	if (clk->leaf)
-		mux_enable(clk->leaf, clk->leaf_mux);
+		mux_prepare_enable(clk->leaf, clk->leaf_mux);
 
-	mux_enable(clk->primary, clk->mux);
+	mux_prepare_enable(clk->primary, clk->mux);
 
 	xo_div4 = readl(gcc->base + gcc->xo_div4_reg);
 	writel(xo_div4 | 1, gcc->base + gcc->xo_div4_reg);
@@ -238,7 +251,7 @@ static void list_clocks(const struct debugcc_platform *platform)
 		printf("%s\n", clk->name);
 }
 
-static int mmap_mux(int devmem, struct debug_mux *mux)
+int mmap_mux(int devmem, struct debug_mux *mux)
 {
 	/* Do nothing if this mux has already been mapped */
 	if (!mux || mux->base)
@@ -345,6 +358,12 @@ int main(int argc, char **argv)
 	devmem = open("/dev/mem", O_RDWR | O_SYNC);
 	if (devmem < 0)
 		err(1, "failed to open /dev/mem");
+
+	if (platform->premap) {
+		ret = platform->premap(devmem);
+		if (ret < 0)
+			exit (1);
+	}
 
 	ret = mmap_hardware(devmem, platform);
 	if (ret < 0)
