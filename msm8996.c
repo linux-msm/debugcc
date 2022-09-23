@@ -72,6 +72,7 @@ static struct debug_mux gcc = {
 static struct debug_mux mmss_cc = {
 	.phys = 0x8c0000,
 	.size = 0xb00c,
+	.block_name = "mmss",
 
 	.enable_reg = 0x900,
 	.enable_mask = BIT(16),
@@ -112,6 +113,7 @@ static void cpu_postmeasure(struct debug_mux *mux)
 static struct debug_mux cpu_cc = {
 	.phys = 0x09820000,
 	.size = 0x1000,
+	.block_name = "cpu",
 
 	.mux_reg = 0x78,
 	.mux_mask = 0xff << 8,
