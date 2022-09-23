@@ -80,6 +80,47 @@ static struct debug_mux mmss_cc = {
 	.mux_mask = 0x3ff,
 };
 
+/* rudimentary muxes to enable APC debug clocks */
+static struct debug_mux apc0_mux = {
+	.phys = 0x06400000,
+	.size = 0x1000,
+
+	.enable_reg = 0x48,
+	.enable_mask = 0xf00,
+};
+
+static struct debug_mux apc1_mux = {
+	.phys = 0x06480000,
+	.size = 0x1000,
+
+	.enable_reg = 0x48,
+	.enable_mask = 0xf00,
+};
+
+static void cpu_premeasure(struct debug_mux *mux)
+{
+	mux_enable(&apc0_mux);
+	mux_enable(&apc1_mux);
+};
+
+static void cpu_postmeasure(struct debug_mux *mux)
+{
+	mux_disable(&apc0_mux);
+	mux_disable(&apc1_mux);
+};
+
+static struct debug_mux cpu_cc = {
+	.phys = 0x09820000,
+	.size = 0x1000,
+
+	.mux_reg = 0x78,
+	.mux_mask = 0xff << 8,
+	.mux_shift = 8,
+
+	.premeasure = cpu_premeasure,
+	.postmeasure = cpu_postmeasure,
+};
+
 static struct measure_clk msm8996_clocks[] = {
 	{ "snoc_clk", &gcc, 0x0000 },
 	{ "gcc_sys_noc_usb3_axi_clk", &gcc, 0x0006 },
@@ -270,6 +311,9 @@ static struct measure_clk msm8996_clocks[] = {
 	{ "gcc_bimc_gfx_clk", &gcc, 0x00af},
 	{ "gcc_hmss_rbcpr_clk", &gcc, 0x00ba },
 	//{ "cpu_dbg_clk", &gcc, 0x00bb },
+	{ "cpu_cbf_clk", &gcc, 0x00bb, &cpu_cc, 0x01 },
+	{ "cpu_pwr_clk", &gcc, 0x00bb, &cpu_cc, 0x11, 16 },
+	{ "cpu_perf_clk", &gcc, 0x00bb, &cpu_cc, 0x21, 16 },
 	{ "gcc_gp1_clk", &gcc, 0x00e3 },
 	{ "gcc_gp2_clk", &gcc, 0x00e4 },
 	{ "gcc_gp3_clk", &gcc, 0x00e5 },
@@ -318,7 +362,19 @@ static struct measure_clk msm8996_clocks[] = {
 	{}
 };
 
+static int msm8996_premap(int devmem)
+{
+	if (mmap_mux(devmem, &apc0_mux))
+		return -1;
+
+	if (mmap_mux(devmem, &apc1_mux))
+		return -1;
+
+	return 0;
+}
+
 struct debugcc_platform msm8996_debugcc = {
 	"msm8996",
 	msm8996_clocks,
+	msm8996_premap,
 };
