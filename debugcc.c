@@ -50,6 +50,7 @@ static const struct debugcc_platform *platforms[] = {
 	&sdm845_debugcc,
 	&sm8350_debugcc,
 	&sm8450_debugcc,
+	&sm8550_debugcc,
 	NULL
 };
 
