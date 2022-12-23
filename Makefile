@@ -8,6 +8,7 @@ prefix := /usr/local
 
 SRCS := debugcc.c \
 	msm8936.c \
+	msm8994.c \
 	msm8996.c \
 	qcs404.c \
 	sc8280xp.c \
@@ -23,6 +24,7 @@ OBJS := $(SRCS:.c=.o)
 $(OUT): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 	ln -f $(OUT) msm8936-debugcc
+	ln -f $(OUT) msm8994-debugcc
 	ln -f $(OUT) msm8996-debugcc
 	ln -f $(OUT) qcs404-debugcc
 	ln -f $(OUT) sc8280xp-debugcc
