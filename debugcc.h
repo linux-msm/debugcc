@@ -90,6 +90,7 @@ void mux_disable(struct debug_mux *mux);
 unsigned long measure_mccc(const struct measure_clk *clk);
 
 extern struct debugcc_platform msm8936_debugcc;
+extern struct debugcc_platform msm8994_debugcc;
 extern struct debugcc_platform msm8996_debugcc;
 extern struct debugcc_platform qcs404_debugcc;
 extern struct debugcc_platform sc8280xp_debugcc;
