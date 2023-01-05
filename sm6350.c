@@ -81,6 +81,14 @@ static struct debug_mux gpu_cc = {
 	.div_val = 2,
 };
 
+static struct debug_mux mc_cc = {
+	.phys = 0x90b0000,
+	.size = 0x1000,
+	.block_name = "mc",
+
+	.measure = measure_mccc,
+};
+
 static struct measure_clk sm6350_clocks[] = {
 	{ "l3_clk", &gcc, 0xbe, &cpu_cc, 0x41 },
 	{ "pwrcl_clk", &gcc, 0xbe, &cpu_cc, 0x21 },
@@ -219,6 +227,7 @@ static struct measure_clk sm6350_clocks[] = {
 	{ "gpu_cc_gx_gmu_clk", &gcc, 0x107, &gpu_cc, 0x10 },
 	{ "gpu_cc_gx_vsense_clk", &gcc, 0x107, &gpu_cc, 0xd },
 
+	{ "mccc_clk", &gcc, 0xab, &mc_cc, 0x50 },
 	{}
 };
 
