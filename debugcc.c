@@ -194,7 +194,10 @@ static void measure(const struct measure_clk *clk)
 
 	mux_prepare_enable(clk->primary, clk->mux);
 
-	clk_rate = measure_default(clk);
+	if (clk->leaf && clk->leaf->measure)
+		clk_rate = clk->leaf->measure(clk);
+	else
+		clk_rate = measure_default(clk);
 
 	mux_disable(clk->primary);
 

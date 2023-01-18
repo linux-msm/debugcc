@@ -35,6 +35,8 @@
 
 #define CORE_CC_BLOCK "core"
 
+struct measure_clk;
+
 struct debug_mux {
 	unsigned long phys;
 	void *base;
@@ -61,6 +63,7 @@ struct debug_mux {
 	unsigned int ahb_mask;
 
 	void (*premeasure)(struct debug_mux *mux);
+	unsigned long (*measure)(const struct measure_clk *clk);
 	void (*postmeasure)(struct debug_mux *mux);
 };
 
