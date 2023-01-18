@@ -144,12 +144,45 @@ static bool leaf_enabled(struct debug_mux *mux, struct debug_mux *leaf)
 	return !val;
 }
 
-static void measure(const struct measure_clk *clk)
+static unsigned long measure_default(const struct measure_clk *clk)
 {
 	unsigned long raw_count_short;
 	unsigned long raw_count_full;
 	struct debug_mux *gcc = clk->primary;
 	unsigned long xo_div4;
+
+	xo_div4 = readl(gcc->base + gcc->xo_div4_reg);
+	writel(xo_div4 | 1, gcc->base + gcc->xo_div4_reg);
+
+	raw_count_short = measure_ticks(gcc, 0x1000);
+	raw_count_full = measure_ticks(gcc, 0x10000);
+
+	writel(xo_div4, gcc->base + gcc->xo_div4_reg);
+
+	if (raw_count_full == raw_count_short) {
+		return 0;
+	}
+
+	raw_count_full = ((raw_count_full * 10) + 15) * 4800000;
+	raw_count_full = raw_count_full / ((0x10000 * 10) + 35);
+
+	if (clk->leaf && clk->leaf->div_val)
+		raw_count_full *= clk->leaf->div_val;
+
+	if (clk->primary->div_val)
+		raw_count_full *= clk->primary->div_val;
+
+	if (clk->fixed_div)
+		raw_count_full *= clk->fixed_div;
+
+
+	return raw_count_full;
+}
+
+static void measure(const struct measure_clk *clk)
+{
+	unsigned long clk_rate;
+	struct debug_mux *gcc = clk->primary;
 
 	if (!leaf_enabled(gcc, clk->leaf)) {
 		printf("%50s: skipping\n", clk->name);
@@ -161,37 +194,19 @@ static void measure(const struct measure_clk *clk)
 
 	mux_prepare_enable(clk->primary, clk->mux);
 
-	xo_div4 = readl(gcc->base + gcc->xo_div4_reg);
-	writel(xo_div4 | 1, gcc->base + gcc->xo_div4_reg);
-
-	raw_count_short = measure_ticks(gcc, 0x1000);
-	raw_count_full = measure_ticks(gcc, 0x10000);
-
-	writel(xo_div4, gcc->base + gcc->xo_div4_reg);
-
-	if (raw_count_full == raw_count_short) {
-		printf("%50s: off\n", clk->name);
-		return;
-	}
-
-	raw_count_full = ((raw_count_full * 10) + 15) * 4800000;
-	raw_count_full = raw_count_full / ((0x10000 * 10) + 35);
+	clk_rate = measure_default(clk);
 
 	mux_disable(clk->primary);
 
 	if (clk->leaf)
 		mux_disable(clk->leaf);
 
-	if (clk->leaf && clk->leaf->div_val)
-		raw_count_full *= clk->leaf->div_val;
+	if (clk_rate == 0) {
+		printf("%50s: off\n", clk->name);
+		return;
+	}
 
-	if (clk->primary->div_val)
-		raw_count_full *= clk->primary->div_val;
-
-	if (clk->fixed_div)
-		raw_count_full *= clk->fixed_div;
-
-	printf("%50s: %fMHz (%ldHz)\n", clk->name, raw_count_full / 1000000.0, raw_count_full);
+	printf("%50s: %fMHz (%ldHz)\n", clk->name, clk_rate / 1000000.0, clk_rate);
 }
 
 static const struct debugcc_platform *find_platform(const char *name)
