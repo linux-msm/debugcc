@@ -138,13 +138,13 @@ static struct debug_mux video_cc = {
 	.div_val = 3,
 };
 
-// static struct debug_mux mc_cc = {
-// 	.phys =	0x90ba000,
-// 	.size = /* 0x54 */ 0x1000,
-// 	.block_name = "mc",
+static struct debug_mux mc_cc = {
+	.phys =	0x90ba000,
+	.size = /* 0x54 */ 0x1000,
+	.block_name = "mc",
 
-// 	/* TODO: Requires custom readback from https://github.com/andersson/debugcc/pull/15 */
-// };
+	.measure = measure_mccc,
+};
 
 static struct debug_mux apss_cc = {
 	.phys =	0x182a0000,
@@ -477,7 +477,7 @@ static struct measure_clk sm8250_clocks[] = {
 	{ "video_cc_sleep_clk", &gcc, 0x57, &video_cc, 0xc },
 	{ "video_cc_xo_clk", &gcc, 0x57, &video_cc, 0xb },
 
-	// { "measure_only_mccc_clk", &gcc, 0xd1, &mc_cc },
+	{ "measure_only_mccc_clk", &gcc, 0xd1, &mc_cc, 0x50 },
 
 	{ "measure_only_apcs_gold_post_acd_clk", &gcc, 0xe7, &apss_cc, 0x25, /* TODO: Are these pre_div_vals? */ 8 },
 	{ "measure_only_apcs_goldplus_post_acd_clk", &gcc, 0xe7, &apss_cc, 0x61, /* TODO: Are these pre_div_vals? */ 8 },

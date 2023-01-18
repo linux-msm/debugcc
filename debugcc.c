@@ -186,6 +186,12 @@ static unsigned long measure_default(const struct measure_clk *clk)
 	return raw_count_full;
 }
 
+unsigned long measure_mccc(const struct measure_clk *clk)
+{
+	/* MCCC is always on, just read the rate and return. */
+	return 1000000000000ULL / readl(clk->leaf->base + clk->leaf_mux);
+}
+
 static void measure(const struct measure_clk *clk)
 {
 	unsigned long clk_rate;

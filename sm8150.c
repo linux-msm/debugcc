@@ -138,6 +138,14 @@ static struct debug_mux npu_cc = {
 	.div_val = 2,
 };
 
+static struct debug_mux mc_cc = {
+	.phys =	0x90b0000,
+	.size = /* 0x54 */ 0x1000,
+	.block_name = "mc",
+
+	.measure = measure_mccc,
+};
+
 static struct debug_mux cpu_cc = {
 	.phys = 0x182a0000,
 	.size = 0x1000,
@@ -247,7 +255,7 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "measure_only_cdsp_clk", &gcc, 0xdb, 0, 0, 2 },
 	{ "measure_only_snoc_clk", &gcc, 0x7 },
 	{ "measure_only_cnoc_clk", &gcc, 0x19 },
-	// { "measure_only_mccc_clk", &gcc, 0xd0, 1, MC_CC, 0xd0 }, // TODO: at 90b0000
+	{ "measure_only_mccc_clk", &gcc, 0xd0, &mc_cc, 0x50 },
 	{ "measure_only_ipa_2x_clk", &gcc, 0x147 },
 	{ "gcc_aggre_noc_pcie_tbu_clk", &gcc, 0x36 },
 	{ "gcc_aggre_ufs_card_axi_clk", &gcc, 0x141 },
