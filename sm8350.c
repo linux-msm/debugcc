@@ -39,19 +39,9 @@
 
 #include "debugcc.h"
 
-#define GCC_BASE	0x100000
-#define GCC_SIZE	0x1f0000
-
-#define GCC_DEBUG_POST_DIV		0x62004
-#define GCC_DEBUG_CBCR			0x62008
-#define GCC_DEBUG_OFFSET		0x62000
-#define GCC_DEBUG_CTL			0x62038
-#define GCC_DEBUG_STATUS		0x6203C
-#define GCC_XO_DIV4_CBCR		0x4300C
-
 static struct debug_mux gcc = {
 	.phys =	0x162000,
-	.size = GCC_SIZE,
+	.size = 0x1f0000,
 
 	.enable_reg = 0x8,
 	.enable_mask = BIT(0),
