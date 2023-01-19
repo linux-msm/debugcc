@@ -90,10 +90,12 @@ static void mux_prepare_enable(struct debug_mux *mux, int selector)
 {
 	uint32_t val;
 
-	val = readl(mux->base + mux->mux_reg);
-	val &= ~mux->mux_mask;
-	val |= selector << mux->mux_shift;
-	writel(val, mux->base + mux->mux_reg);
+	if (mux->mux_mask) {
+		val = readl(mux->base + mux->mux_reg);
+		val &= ~mux->mux_mask;
+		val |= selector << mux->mux_shift;
+		writel(val, mux->base + mux->mux_reg);
+	}
 
 	if (mux->div_mask) {
 		val = readl(mux->base + mux->div_reg);
@@ -109,9 +111,11 @@ void mux_enable(struct debug_mux *mux)
 {
 	uint32_t val;
 
-	val = readl(mux->base + mux->enable_reg);
-	val |= mux->enable_mask;
-	writel(val, mux->base + mux->enable_reg);
+	if (mux->enable_mask) {
+		val = readl(mux->base + mux->enable_reg);
+		val |= mux->enable_mask;
+		writel(val, mux->base + mux->enable_reg);
+	}
 
 	if (mux->premeasure)
 		mux->premeasure(mux);
@@ -124,9 +128,11 @@ void mux_disable(struct debug_mux *mux)
 	if (mux->postmeasure)
 		mux->postmeasure(mux);
 
-	val = readl(mux->base + mux->enable_reg);
-	val &= ~mux->enable_mask;
-	writel(val, mux->base + mux->enable_reg);
+	if (mux->enable_mask) {
+		val = readl(mux->base + mux->enable_reg);
+		val &= ~mux->enable_mask;
+		writel(val, mux->base + mux->enable_reg);
+	}
 }
 
 static bool leaf_enabled(struct debug_mux *mux, struct debug_mux *leaf)
