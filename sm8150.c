@@ -217,6 +217,7 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "cam_cc_mclk1_clk", &gcc, 0x55, &cam_cc, 0x2 },
 	{ "cam_cc_mclk2_clk", &gcc, 0x55, &cam_cc, 0x3 },
 	{ "cam_cc_mclk3_clk", &gcc, 0x55, &cam_cc, 0x4 },
+
 	{ "disp_cc_mdss_ahb_clk", &gcc, 0x56, &disp_cc, 0x2b },
 	{ "disp_cc_mdss_byte0_clk", &gcc, 0x56, &disp_cc, 0x15 },
 	{ "disp_cc_mdss_byte0_intf_clk", &gcc, 0x56, &disp_cc, 0x16 },
@@ -250,9 +251,11 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "disp_cc_mdss_rscc_vsync_clk", &gcc, 0x56, &disp_cc, 0x2d },
 	{ "disp_cc_mdss_vsync_clk", &gcc, 0x56, &disp_cc, 0x14 },
 	{ "disp_cc_xo_clk", &gcc, 0x56, &disp_cc, 0x36 },
-	/* TODO: post_div_val and prim_mux_div_val are 2 */
-	// { "measure_only_cdsp_clk", &gcc, 0xdb, 2, GCC, 0xdb, 0x3ff, 0, 0xf, 0, 2, 0x62000, 0x62004, 0x62008 },
-	{ "measure_only_cdsp_clk", &gcc, 0xdb, 0, 0, 2 },
+
+	// { "cpu_cc_debug_mux", &gcc, 0xe8 },
+	// { "cam_cc_debug_mux", &gcc, 0x55 },
+	// { "disp_cc_debug_mux", &gcc, 0x56 },
+	{ "measure_only_cdsp_clk", &gcc, 0xdb, NULL, 0, 2 },
 	{ "measure_only_snoc_clk", &gcc, 0x7 },
 	{ "measure_only_cnoc_clk", &gcc, 0x19 },
 	{ "measure_only_mccc_clk", &gcc, 0xd0, &mc_cc, 0x50 },
@@ -381,6 +384,11 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "gcc_video_axi1_clk", &gcc, 0x4b },
 	{ "gcc_video_axic_clk", &gcc, 0x4c },
 	{ "gcc_video_xo_clk", &gcc, 0x51 },
+	// { "gpu_cc_debug_mux", &gcc, 0x162 },
+	// { "mc_cc_debug_mux", &gcc, 0xd0 },
+	// { "npu_cc_debug_mux", &gcc, 0x180 },
+	// { "video_cc_debug_mux", &gcc, 0x57 },
+
 	{ "gpu_cc_ahb_clk", &gcc, 0x162, &gpu_cc, 0x10 },
 	{ "gpu_cc_cx_apb_clk", &gcc, 0x162, &gpu_cc, 0x14 },
 	{ "gpu_cc_cx_gmu_clk", &gcc, 0x162, &gpu_cc, 0x18 },
@@ -394,6 +402,7 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "measure_only_gpu_cc_cx_gfx3d_clk", &gcc, 0x162, &gpu_cc, 0x1a },
 	{ "measure_only_gpu_cc_cx_gfx3d_slv_clk", &gcc, 0x162, &gpu_cc, 0x1b },
 	{ "measure_only_gpu_cc_gx_gfx3d_clk", &gcc, 0x162, &gpu_cc, 0xb },
+
 	{ "npu_cc_armwic_core_clk", &gcc, 0x180, &npu_cc, 0x4 },
 	{ "npu_cc_bto_core_clk", &gcc, 0x180, &npu_cc, 0x12 },
 	{ "npu_cc_bwmon_clk", &gcc, 0x180, &npu_cc, 0xf },
@@ -408,11 +417,13 @@ static struct measure_clk sm8150_clocks[] = {
 	{ "npu_cc_npu_cpc_clk", &gcc, 0x180, &npu_cc, 0x3 },
 	{ "npu_cc_perf_cnt_clk", &gcc, 0x180, &npu_cc, 0x10 },
 	{ "npu_cc_xo_clk", &gcc, 0x180, &npu_cc, 0x11 },
+
 	{ "video_cc_iris_ahb_clk", &gcc, 0x57, &video_cc, 0x7 },
 	{ "video_cc_mvs0_core_clk", &gcc, 0x57, &video_cc, 0x3 },
 	{ "video_cc_mvs1_core_clk", &gcc, 0x57, &video_cc, 0x5 },
 	{ "video_cc_mvsc_core_clk", &gcc, 0x57, &video_cc, 0x1 },
 	{ "video_cc_xo_clk", &gcc, 0x57, &video_cc, 0x8 },
+
 	{ "l3_clk", &gcc, 0xe8, &cpu_cc, 0x46, 16 },
 	{ "pwrcl_clk", &gcc, 0xe8, &cpu_cc, 0x44, 16 },
 	{ "perfcl_clk", &gcc, 0xe8, &cpu_cc, 0x45, 16 },
