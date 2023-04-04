@@ -90,6 +90,14 @@ static struct debug_mux disp1_cc = {
 	.div_val = 4,
 };
 
+static struct debug_mux mc_cc = {
+	.phys =	0x90ba000,
+	.size = /* 0x54 */ 0x1000,
+	.block_name = "mc",
+
+	.measure = measure_mccc,
+};
+
 static struct measure_clk sc8280xp_clocks[] = {
 	{ "gcc_aggre_noc_pcie0_tunnel_axi_clk",			&gcc, 0x217 },
 	{ "gcc_aggre_noc_pcie1_tunnel_axi_clk",			&gcc, 0x218 },
@@ -418,6 +426,7 @@ static struct measure_clk sc8280xp_clocks[] = {
 	{ "disp1_cc_mdss_vsync_clk",				&gcc, 0x82, &disp1_cc, 0x17 },
 	{ "disp1_cc_sleep_clk",					&gcc, 0x82, &disp1_cc, 0x46 },
 	{ "disp1_cc_xo_clk",					&gcc, 0x82, &disp1_cc, 0x45 },
+	{ "measure_only_mccc_clk", 				&gcc, 0xfeedbeef, &mc_cc, 0x50 },
 	{}
 };
 
