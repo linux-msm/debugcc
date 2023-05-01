@@ -210,14 +210,16 @@ static void measure(const struct measure_clk *clk)
 	if (clk->leaf)
 		mux_prepare_enable(clk->leaf, clk->leaf_mux);
 
-	mux_prepare_enable(clk->primary, clk->mux);
+	if (clk->primary)
+		mux_prepare_enable(clk->primary, clk->mux);
 
 	if (clk->leaf && clk->leaf->measure)
 		clk_rate = clk->leaf->measure(clk);
 	else
 		clk_rate = measure_default(clk);
 
-	mux_disable(clk->primary);
+	if (clk->primary)
+		mux_disable(clk->primary);
 
 	if (clk->leaf)
 		mux_disable(clk->leaf);
