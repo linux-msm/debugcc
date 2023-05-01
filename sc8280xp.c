@@ -426,7 +426,7 @@ static struct measure_clk sc8280xp_clocks[] = {
 	{ "disp1_cc_mdss_vsync_clk",				&gcc, 0x82, &disp1_cc, 0x17 },
 	{ "disp1_cc_sleep_clk",					&gcc, 0x82, &disp1_cc, 0x46 },
 	{ "disp1_cc_xo_clk",					&gcc, 0x82, &disp1_cc, 0x45 },
-	{ "measure_only_mccc_clk", 				&gcc, 0xfeedbeef, &mc_cc, 0x50 },
+	{ "measure_only_mccc_clk", 				NULL, 0, &mc_cc, 0x50 },
 	{}
 };
 
