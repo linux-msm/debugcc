@@ -201,9 +201,8 @@ unsigned long measure_mccc(const struct measure_clk *clk)
 static void measure(const struct measure_clk *clk)
 {
 	unsigned long clk_rate;
-	struct debug_mux *gcc = clk->primary;
 
-	if (!leaf_enabled(gcc, clk->leaf)) {
+	if (!leaf_enabled(clk->primary, clk->leaf)) {
 		printf("%50s: skipping\n", clk->name);
 		return;
 	}
