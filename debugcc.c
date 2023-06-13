@@ -122,7 +122,10 @@ unsigned long measure_gcc(const struct measure_clk *clk,
 	unsigned long xo_div4;
 
 	xo_div4 = readl(mux->base + gcc->xo_div4_reg);
-	writel(xo_div4 | 1, mux->base + gcc->xo_div4_reg);
+	if (gcc->xo_div4_val)
+		writel(xo_div4 | gcc->xo_div4_val, mux->base + gcc->xo_div4_reg);
+	else
+		writel(xo_div4 | 1, mux->base + gcc->xo_div4_reg);
 
 	raw_count_short = measure_ticks(gcc, 0x1000);
 	raw_count_full = measure_ticks(gcc, 0x10000);
