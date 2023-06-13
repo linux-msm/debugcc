@@ -116,8 +116,8 @@ void mux_disable(struct debug_mux *mux)
 unsigned long measure_gcc(const struct measure_clk *clk,
 			  const struct debug_mux *mux)
 {
-	unsigned long raw_count_short;
-	unsigned long raw_count_full;
+	uint64_t raw_count_short;
+	uint64_t raw_count_full;
 	struct gcc_mux *gcc = container_of(mux, struct gcc_mux, mux);
 	unsigned long xo_div4;
 
