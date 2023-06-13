@@ -65,6 +65,8 @@ struct debug_mux {
 struct gcc_mux {
 	struct debug_mux mux;
 
+	unsigned int xo_rate;
+
 	unsigned int xo_div4_reg;
 	unsigned int xo_div4_val;
 

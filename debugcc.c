@@ -116,10 +116,14 @@ void mux_disable(struct debug_mux *mux)
 unsigned long measure_gcc(const struct measure_clk *clk,
 			  const struct debug_mux *mux)
 {
+	unsigned int xo_rate = 4800000;
 	uint64_t raw_count_short;
 	uint64_t raw_count_full;
 	struct gcc_mux *gcc = container_of(mux, struct gcc_mux, mux);
 	unsigned long xo_div4;
+
+	if (gcc->xo_rate)
+		xo_rate = gcc->xo_rate;
 
 	xo_div4 = readl(mux->base + gcc->xo_div4_reg);
 	if (gcc->xo_div4_val)
@@ -136,7 +140,7 @@ unsigned long measure_gcc(const struct measure_clk *clk,
 		return 0;
 	}
 
-	raw_count_full = ((raw_count_full * 10) + 15) * 4800000;
+	raw_count_full = ((raw_count_full * 10) + 15) * xo_rate;
 	raw_count_full = raw_count_full / ((0x10000 * 10) + 35);
 
 	if (mux->div_val)
