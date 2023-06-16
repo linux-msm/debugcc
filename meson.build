@@ -17,6 +17,7 @@ platforms = [
   'msm8998',
   'qcs404',
   'qcm2290',
+  'sc7180',
   'sc8280xp',
   'sdm845',
   'sm6115',
