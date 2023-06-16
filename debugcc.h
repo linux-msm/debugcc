@@ -43,6 +43,9 @@ struct debug_mux {
 	const char *block_name;
 	size_t size;
 
+	struct debug_mux *parent;
+	unsigned long parent_mux_val;
+
 	unsigned int enable_reg;
 	unsigned int enable_mask;
 
@@ -55,25 +58,22 @@ struct debug_mux {
 	unsigned int div_mask;
 	unsigned int div_val;
 
+	unsigned long (*measure)(const struct measure_clk *clk,
+				 const struct debug_mux *mux);
+};
+
+struct gcc_mux {
+	struct debug_mux mux;
+
 	unsigned int xo_div4_reg;
 	unsigned int debug_ctl_reg;
 	unsigned int debug_status_reg;
-
-	unsigned int ahb_reg;
-	unsigned int ahb_mask;
-
-	void (*premeasure)(struct debug_mux *mux);
-	unsigned long (*measure)(const struct measure_clk *clk);
-	void (*postmeasure)(struct debug_mux *mux);
 };
 
 struct measure_clk {
 	char *name;
-	struct debug_mux *primary;
-	int mux;
-
-	struct debug_mux *leaf;
-	int leaf_mux;
+	struct debug_mux *clk_mux;
+	unsigned long mux;
 
 	unsigned int fixed_div;
 };
@@ -84,10 +84,29 @@ struct debugcc_platform {
 	int (*premap)(int devmem);
 };
 
+#define container_of(ptr, type, member) \
+	((type *) ((char *)(ptr) - offsetof(type, member)))
+
+static inline uint32_t readl(void *ptr)
+{
+	return *((volatile uint32_t*)ptr);
+}
+
+static inline void writel(uint32_t val, void *ptr)
+{
+	*((volatile uint32_t*)ptr) = val;
+}
+
 int mmap_mux(int devmem, struct debug_mux *mux);
 void mux_enable(struct debug_mux *mux);
 void mux_disable(struct debug_mux *mux);
-unsigned long measure_mccc(const struct measure_clk *clk);
+
+unsigned long measure_gcc(const struct measure_clk *clk,
+			  const struct debug_mux *mux);
+unsigned long measure_leaf(const struct measure_clk *clk,
+			   const struct debug_mux *mux);
+unsigned long measure_mccc(const struct measure_clk *clk,
+			   const struct debug_mux *mux);
 
 extern const struct debugcc_platform *platforms[];
 
