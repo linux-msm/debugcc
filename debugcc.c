@@ -42,26 +42,6 @@
 
 #include "debugcc.h"
 
-static const struct debugcc_platform *platforms[] = {
-	&msm8936_debugcc,
-	&msm8994_debugcc,
-	&msm8996_debugcc,
-	&msm8998_debugcc,
-	&qcs404_debugcc,
-	&sc8280xp_debugcc,
-	&sdm845_debugcc,
-	&sm6115_debugcc,
-	&sm6125_debugcc,
-	&sm6350_debugcc,
-	&sm6375_debugcc,
-	&sm8150_debugcc,
-	&sm8250_debugcc,
-	&sm8350_debugcc,
-	&sm8450_debugcc,
-	&sm8550_debugcc,
-	NULL
-};
-
 static uint32_t readl(void *ptr)
 {
 	return *((volatile uint32_t*)ptr);
