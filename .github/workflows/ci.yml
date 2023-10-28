@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Copyright (c) 2023 Linaro Ltd.
+#
+name: "Builds"
+on:
+  pull_request:
+  push:
+  schedule:
+    # Run periodically to check that it still compiles
+    - cron: '13 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  job:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - debian:testing
+          - debian:bookworm
+            #- debian:bullseye
+            #- debian:buster
+          - ubuntu:lunar
+          - ubuntu:jammy
+            #- ubuntu:focal
+            #- ubuntu:bionic
+            #- ubuntu:xenial
+
+    container:
+      image: ${{ matrix.container }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Install meson
+        run: |
+          apt update
+          apt -y install --no-install-recommends meson build-essential
+
+      - name: Build
+        run: |
+          meson setup . build --werror
+          ninja -C build
+          ninja -C build install
