@@ -292,7 +292,7 @@ int mmap_mux(int devmem, struct debug_mux *mux)
 
 	mux->base = mmap(0, mux->size, PROT_READ | PROT_WRITE, MAP_SHARED, devmem, mux->phys);
 	if (mux->base == (void *)-1) {
-		warn("failed to map %#zx", mux->phys);
+		warn("failed to map %#lx", mux->phys);
 		return -1;
 	}
 
