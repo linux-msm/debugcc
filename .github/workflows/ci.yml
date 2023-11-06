@@ -50,7 +50,7 @@ jobs:
           apt -y install --no-install-recommends meson build-essential
 
       - name: Install cross-compilers
-        if:${{ matrix.target }} != 'native'
+        if: matrix.target != 'native'
         run: |
           apt -y install gcc-${{ matrix.target }}
           FAMILY=$(echo ${{ matrix.target }} | cut -d- -f 1)
