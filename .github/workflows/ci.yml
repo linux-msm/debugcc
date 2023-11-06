@@ -32,6 +32,10 @@ jobs:
             #- ubuntu:focal
             #- ubuntu:bionic
             #- ubuntu:xenial
+        target:
+          - native
+          - aarch64-linux-gnu
+          - arm-linux-gnueabihf
 
     container:
       image: ${{ matrix.container }}
@@ -45,8 +49,40 @@ jobs:
           apt update
           apt -y install --no-install-recommends meson build-essential
 
+      - name: Install cross-compilers
+        if:${{ matrix.target }} != 'native'
+        run: |
+          apt -y install gcc-${{ matrix.target }}
+          FAMILY=$(echo ${{ matrix.target }} | cut -d- -f 1)
+          if [ "${FAMILY}" = "aarch64" ] ; then
+            CPU="arm64"
+          elif [ "${FAMILY}" = "arm" ] ; then
+            CPU="arm"
+          else
+            echo "Unknown CPU family ${FAMILY}"
+            exit 1
+          fi
+          cat > cross.txt << EOF
+          [binaries]
+          c = '${{ matrix.target }}-gcc'
+          strip = '${{ matrix.target }}-strip'
+          pkgconfig = 'pkg-config'
+          [host_machine]
+          system = 'linux'
+          cpu_family = '${FAMILY}'
+          cpu = 'arm64'
+          endian = 'litle'
+          [properties]
+          pkg_config_libdir = '/usr/lib/${{ matrix.target }}/pkgconfig'
+          EOF
+          cat cross.txt
+
       - name: Build
         run: |
-          meson setup . build --werror
+          if [ ${{ matrix.target }} = "native" ] ; then
+            meson setup . build --werror
+          else
+            meson setup --cross-file cross.txt . build --werror
+          fi
           ninja -C build
           ninja -C build install
