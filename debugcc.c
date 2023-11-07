@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -42,33 +43,23 @@
 
 #include "debugcc.h"
 
-static uint32_t readl(void *ptr)
-{
-	return *((volatile uint32_t*)ptr);
-}
-
-static void writel(uint32_t val, void *ptr)
-{
-	*((volatile uint32_t*)ptr) = val;
-}
-
-static unsigned int measure_ticks(struct debug_mux *gcc, unsigned int ticks)
+static unsigned int measure_ticks(struct gcc_mux *gcc, unsigned int ticks)
 {
 	uint32_t val;
 
-	writel(ticks, gcc->base + gcc->debug_ctl_reg);
+	writel(ticks, gcc->mux.base + gcc->debug_ctl_reg);
 	do {
-		val = readl(gcc->base + gcc->debug_status_reg);
+		val = readl(gcc->mux.base + gcc->debug_status_reg);
 	} while (val & BIT(25));
 
-	writel(ticks | BIT(20), gcc->base + gcc->debug_ctl_reg);
+	writel(ticks | BIT(20), gcc->mux.base + gcc->debug_ctl_reg);
 	do {
-		val = readl(gcc->base + gcc->debug_status_reg);
+		val = readl(gcc->mux.base + gcc->debug_status_reg);
 	} while (!(val & BIT(25)));
 
 	val &= 0x1ffffff;
 
-	writel(ticks, gcc->base + gcc->debug_ctl_reg);
+	writel(ticks, gcc->mux.base + gcc->debug_ctl_reg);
 
 	return val;
 }
@@ -92,6 +83,9 @@ static void mux_prepare_enable(struct debug_mux *mux, int selector)
 	}
 
 	mux_enable(mux);
+
+	if (mux->parent)
+		mux_prepare_enable(mux->parent, mux->parent_mux_val);
 }
 
 void mux_enable(struct debug_mux *mux)
@@ -103,17 +97,14 @@ void mux_enable(struct debug_mux *mux)
 		val |= mux->enable_mask;
 		writel(val, mux->base + mux->enable_reg);
 	}
-
-	if (mux->premeasure)
-		mux->premeasure(mux);
 }
 
 void mux_disable(struct debug_mux *mux)
 {
 	uint32_t val;
 
-	if (mux->postmeasure)
-		mux->postmeasure(mux);
+	if (mux->parent)
+		mux_disable(mux->parent);
 
 	if (mux->enable_mask) {
 		val = readl(mux->base + mux->enable_reg);
@@ -122,35 +113,21 @@ void mux_disable(struct debug_mux *mux)
 	}
 }
 
-static bool leaf_enabled(struct debug_mux *mux, struct debug_mux *leaf)
-{
-	uint32_t val;
-
-	/* If no AHB clock is specified, we assume it's clocked */
-	if (!leaf || !leaf->ahb_mask)
-		return true;
-
-	val = readl(mux->base + leaf->ahb_reg);
-	val &= leaf->ahb_mask;
-
-	/* CLK_OFF will be set if block is not clocked, so inverse */
-	return !val;
-}
-
-static unsigned long measure_default(const struct measure_clk *clk)
+unsigned long measure_gcc(const struct measure_clk *clk,
+			  const struct debug_mux *mux)
 {
 	unsigned long raw_count_short;
 	unsigned long raw_count_full;
-	struct debug_mux *gcc = clk->primary;
+	struct gcc_mux *gcc = container_of(mux, struct gcc_mux, mux);
 	unsigned long xo_div4;
 
-	xo_div4 = readl(gcc->base + gcc->xo_div4_reg);
-	writel(xo_div4 | 1, gcc->base + gcc->xo_div4_reg);
+	xo_div4 = readl(mux->base + gcc->xo_div4_reg);
+	writel(xo_div4 | 1, mux->base + gcc->xo_div4_reg);
 
 	raw_count_short = measure_ticks(gcc, 0x1000);
 	raw_count_full = measure_ticks(gcc, 0x10000);
 
-	writel(xo_div4, gcc->base + gcc->xo_div4_reg);
+	writel(xo_div4, mux->base + gcc->xo_div4_reg);
 
 	if (raw_count_full == raw_count_short) {
 		return 0;
@@ -159,49 +136,49 @@ static unsigned long measure_default(const struct measure_clk *clk)
 	raw_count_full = ((raw_count_full * 10) + 15) * 4800000;
 	raw_count_full = raw_count_full / ((0x10000 * 10) + 35);
 
-	if (clk->leaf && clk->leaf->div_val)
-		raw_count_full *= clk->leaf->div_val;
-
-	if (clk->primary->div_val)
-		raw_count_full *= clk->primary->div_val;
-
-	if (clk->fixed_div)
-		raw_count_full *= clk->fixed_div;
-
+	if (mux->div_val)
+		raw_count_full *= mux->div_val;
 
 	return raw_count_full;
 }
 
-unsigned long measure_mccc(const struct measure_clk *clk)
+unsigned long measure_leaf(const struct measure_clk *clk,
+			   const struct debug_mux *mux)
+{
+	unsigned long count;
+
+	if (!mux->parent) {
+		printf("No parent in measure_leaf, mux '%s'\n", mux->block_name ? : "gcc");
+		return 0;
+	}
+
+	count = mux->parent->measure(clk, mux->parent);
+
+	if (mux->div_val)
+		count *= mux->div_val;
+
+	return count;
+}
+
+unsigned long measure_mccc(const struct measure_clk *clk,
+			   const struct debug_mux *mux)
 {
 	/* MCCC is always on, just read the rate and return. */
-	return 1000000000000ULL / readl(clk->leaf->base + clk->leaf_mux);
+	return 1000000000000ULL / readl(clk->clk_mux->base + clk->mux);
 }
 
 static void measure(const struct measure_clk *clk)
 {
 	unsigned long clk_rate;
-	struct debug_mux *gcc = clk->primary;
 
-	if (!leaf_enabled(gcc, clk->leaf)) {
-		printf("%50s: skipping\n", clk->name);
-		return;
-	}
+	mux_prepare_enable(clk->clk_mux, clk->mux);
 
-	if (clk->leaf)
-		mux_prepare_enable(clk->leaf, clk->leaf_mux);
+	clk_rate = clk->clk_mux->measure(clk, clk->clk_mux);
 
-	mux_prepare_enable(clk->primary, clk->mux);
+	if (clk->fixed_div)
+		clk_rate *= clk->fixed_div;
 
-	if (clk->leaf && clk->leaf->measure)
-		clk_rate = clk->leaf->measure(clk);
-	else
-		clk_rate = measure_default(clk);
-
-	mux_disable(clk->primary);
-
-	if (clk->leaf)
-		mux_disable(clk->leaf);
+	mux_disable(clk->clk_mux);
 
 	if (clk_rate == 0) {
 		printf("%50s: off\n", clk->name);
@@ -265,8 +242,8 @@ static const struct measure_clk *find_clock(const struct debugcc_platform *platf
 static bool clock_from_block(const struct measure_clk *clk, const char *block_name)
 {
 	return  !block_name ||
-		(!clk->leaf && !strcmp(block_name, CORE_CC_BLOCK)) ||
-		(clk->leaf && clk->leaf->block_name && !strcmp(block_name, clk->leaf->block_name));
+		(!clk->clk_mux && !strcmp(block_name, CORE_CC_BLOCK)) ||
+		(clk->clk_mux && clk->clk_mux->block_name && !strcmp(block_name, clk->clk_mux->block_name));
 }
 
 static void list_clocks_block(const struct debugcc_platform *platform, const char *block_name)
@@ -277,8 +254,8 @@ static void list_clocks_block(const struct debugcc_platform *platform, const cha
 		if (!clock_from_block(clk, block_name))
 			continue;
 
-		if (clk->leaf && clk->leaf->block_name)
-			printf("%-40s %s\n", clk->name, clk->leaf->block_name);
+		if (clk->clk_mux && clk->clk_mux->block_name)
+			printf("%-40s %s\n", clk->name, clk->clk_mux->block_name);
 		else
 			printf("%s\n", clk->name);
 	}
@@ -296,7 +273,7 @@ int mmap_mux(int devmem, struct debug_mux *mux)
 		return -1;
 	}
 
-	return 0;
+	return mmap_mux(devmem, mux->parent);
 }
 
 /**
@@ -312,11 +289,7 @@ static int mmap_hardware(int devmem, const struct debugcc_platform *platform)
 	int ret;
 
 	for (clk = platform->clocks; clk->name; clk++) {
-		ret = mmap_mux(devmem, clk->primary);
-		if (ret < 0)
-			return ret;
-
-		ret = mmap_mux(devmem, clk->leaf);
+		ret = mmap_mux(devmem, clk->clk_mux);
 		if (ret < 0)
 			return ret;
 	}
