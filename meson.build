@@ -26,6 +26,7 @@ platforms = [
   'sm8350',
   'sm8450',
   'sm8550',
+  'sm8650',
   ]
 
 debugcc_srcs = [
