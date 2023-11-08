@@ -32,6 +32,7 @@
 #define __DEBUGCC_H__
 
 #define BIT(x) (1 << (x))
+#define GENMASK(h, l) (((~0UL) << (l)) & (~0UL >> (sizeof(long) * 8 - 1 - (h))))
 
 #define CORE_CC_BLOCK "core"
 
@@ -65,7 +66,11 @@ struct debug_mux {
 struct gcc_mux {
 	struct debug_mux mux;
 
+	unsigned int xo_rate;
+
 	unsigned int xo_div4_reg;
+	unsigned int xo_div4_val;
+
 	unsigned int debug_ctl_reg;
 	unsigned int debug_status_reg;
 };
