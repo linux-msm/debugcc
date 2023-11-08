@@ -32,6 +32,7 @@
 #define __DEBUGCC_H__
 
 #define BIT(x) (1 << (x))
+#define GENMASK(h, l) (((~0UL) << (l)) & (~0UL >> (sizeof(long) * 8 - 1 - (h))))
 
 #define CORE_CC_BLOCK "core"
 
