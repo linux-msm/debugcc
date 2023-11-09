@@ -192,7 +192,7 @@ static void measure(const struct measure_clk *clk)
 		return;
 	}
 
-	printf("%50s: %fMHz (%ldHz)\n", clk->name, clk_rate / 1000000.0, clk_rate);
+	printf("%50s: %fMHz (%luHz)\n", clk->name, clk_rate / 1000000.0, clk_rate);
 }
 
 static const struct debugcc_platform *find_platform(const char *name)
