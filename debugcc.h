@@ -76,7 +76,7 @@ struct gcc_mux {
 };
 
 struct measure_clk {
-	char *name;
+	const char * const name;
 	struct debug_mux *clk_mux;
 	unsigned long mux;
 

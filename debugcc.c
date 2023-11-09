@@ -192,7 +192,7 @@ static void measure(const struct measure_clk *clk)
 		return;
 	}
 
-	printf("%50s: %fMHz (%ldHz)\n", clk->name, clk_rate / 1000000.0, clk_rate);
+	printf("%50s: %fMHz (%luHz)\n", clk->name, clk_rate / 1000000.0, clk_rate);
 }
 
 static const struct debugcc_platform *find_platform(const char *name)
@@ -201,32 +201,6 @@ static const struct debugcc_platform *find_platform(const char *name)
 
 	for (p = platforms; *p; p++) {
 		if (!strcmp((*p)->name, name))
-			return *p;
-	}
-
-	return NULL;
-}
-
-/**
- * match_platform() - match platform with executable name
- * @argv: argv[0] of the executable
- *
- * Return: A debugcc_platform when a match is found, otherwise NULL
- *
- * Matches %s-debugcc against the registered platforms
- */
-static const struct debugcc_platform *match_platform(const char *argv)
-{
-	const struct debugcc_platform **p;
-	const char *name;
-	size_t len;
-
-	for (p = platforms; *p; p++) {
-		name = (*p)->name;
-
-		len = strlen(name);
-
-		if (!strncmp(name, argv, len) && !strcmp(argv + len, "-debugcc"))
 			return *p;
 	}
 
@@ -309,7 +283,6 @@ static void usage(void)
 	const struct debugcc_platform **p;
 
 	fprintf(stderr, "debugcc <-p platform> [-b blk] <-a | -l | clk>\n");
-	fprintf(stderr, "<platform>-debugcc [-b blk] <-a | -l | clk>\n");
 
 	fprintf(stderr, "available platforms:");
 	for (p = platforms; *p; p++)
@@ -350,11 +323,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (!platform) {
-		platform = match_platform(argv[0]);
-		if (!platform)
-			usage();
-	}
+	if (!platform)
+		usage();
 
 	if (do_list_clocks) {
 		list_clocks_block(platform, block_name);

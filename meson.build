@@ -5,9 +5,40 @@ project('debugcc',
   license: ['BSD-3-Clause'],
   meson_version : '>= 0.61.0', # for install_symlink
   default_options: [
+    'warning_level=2',	# sets -Wextra
     'buildtype=release',
     ]
   )
+
+# Set advanced compiler flags
+compiler = meson.get_compiler('c')
+
+compiler_cflags = ['-Wno-unused-parameter',
+		   '-Wno-unused-result',
+		   '-Wno-missing-field-initializers',
+		   '-Wno-sign-compare',
+		   '-Wundef',
+		   '-Wnull-dereference',
+		   '-Wdouble-promotion',
+		   '-Wshadow',
+		   '-Wwrite-strings',
+		   '-Wstrict-overflow=4']
+
+# TODO add clang specific options
+if compiler.get_id() == 'gcc'
+	compiler_cflags += ['-Wformat-signedness',
+			    '-Wduplicated-cond',
+			    '-Wduplicated-branches',
+			    '-Wvla-larger-than=1',
+			    '-Walloc-zero',
+			    '-Wunsafe-loop-optimizations',
+			    '-Wcast-align',
+			    '-Wlogical-op',
+			    '-Wjump-misses-init']
+endif
+
+add_global_arguments(compiler.get_supported_arguments(compiler_cflags),
+                     language: 'c')
 
 platforms = [
   'ipq8064',
