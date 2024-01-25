@@ -72,7 +72,8 @@ static struct measure_clk msm8998_clocks[] = {
 
 	{ "snoc_clk", &gcc.mux, 0x0 },
 	{ "cnoc_clk", &gcc.mux, 0xe },
-	{ "bimc_clk", &gcc.mux, 0x14e },
+	{ "bimc_clk", &gcc.mux, 0xa9 },
+	{ "ddrss_gcc_dbg_clk", &gcc.mux, 0x14e },
 	{ "gcc_mmss_sys_noc_axi_clk", &gcc.mux, 0x1f },
 	{ "gcc_mmss_noc_cfg_ahb_clk", &gcc.mux, 0x20 },
 	{ "gcc_usb30_master_clk", &gcc.mux, 0x3e },

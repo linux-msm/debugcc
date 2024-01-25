@@ -16,6 +16,8 @@ platforms = [
   'msm8996',
   'msm8998',
   'qcs404',
+  'qcm2290',
+  'sc7180',
   'sc8280xp',
   'sdm845',
   'sm6115',
@@ -58,4 +60,5 @@ debugcc_srcs += configure_file(
 
 executable('debugcc',
   debugcc_srcs,
+  c_args : '-Wl,-static,-static-libgcc',
   install: true)
