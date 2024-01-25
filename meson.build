@@ -60,4 +60,5 @@ debugcc_srcs += configure_file(
 
 executable('debugcc',
   debugcc_srcs,
+  c_args : '-Wl,-static,-static-libgcc',
   install: true)
