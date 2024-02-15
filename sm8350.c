@@ -44,6 +44,8 @@ static struct gcc_mux gcc = {
 		.phys =	0x162000,
 		.size = 0x1f0000,
 
+		.measure = measure_gcc,
+
 		.enable_reg = 0x8,
 		.enable_mask = BIT(0),
 
