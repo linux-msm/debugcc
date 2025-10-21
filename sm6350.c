@@ -35,6 +35,26 @@ static struct gcc_mux gcc = {
 	.debug_status_reg = 0x35f28,
 };
 
+static struct debug_mux cam_cc = {
+	.phys = 0xad00000,
+	.size = 0x16000,
+	.block_name = "cam",
+
+	.measure = measure_leaf,
+	.parent = &gcc.mux,
+	.parent_mux_val = 0x3f,
+
+	.enable_reg = 0x15008,
+	.enable_mask = BIT(0),
+
+	.mux_reg = 0x15100,
+	.mux_mask = 0xff,
+
+	.div_reg = 0x15004,
+	.div_mask = 0x3,
+	.div_val = 2,
+};
+
 static struct debug_mux cpu_cc = {
 	.phys = 0x182a0000,
 	.size = 0x1000,
@@ -107,11 +127,47 @@ static struct debug_mux mc_cc = {
 	.parent_mux_val = 0xab,
 };
 
-static struct measure_clk sm6350_clocks[] = {
-	//{ "cam_cc_debug_mux", &gcc.mux, 0x3f },
-	//{ "npu_cc_debug_mux", &gcc.mux, 0x11a },
-	//{ "video_cc_debug_mux", &gcc.mux, 0x41 },
+static struct debug_mux npu_cc = {
+	.phys = 0x9980000,
+	.size = 0x10000,
+	.block_name = "npu",
 
+	.measure = measure_leaf,
+	.parent = &gcc.mux,
+	.parent_mux_val = 0x11a,
+
+	.enable_reg = 0x3008,
+	.enable_mask = BIT(0),
+
+	.mux_reg = 0x3000,
+	.mux_mask = 0xff,
+
+	.div_reg = 0x3004,
+	.div_mask = 0x3,
+	.div_val = 2,
+};
+
+static struct debug_mux video_cc = {
+	.phys = 0xaaf0000,
+	.size = 0x10000,
+	.block_name = "video",
+
+	.measure = measure_leaf,
+	.parent = &gcc.mux,
+	.parent_mux_val = 0x41,
+
+	.enable_reg = 0x6004,
+	.enable_mask = BIT(0),
+
+	.mux_reg = 0x9000,
+	.mux_mask = 0x3f,
+
+	.div_reg = 0x6000,
+	.div_mask = 0x7,
+	.div_val = 2,
+};
+
+static struct measure_clk sm6350_clocks[] = {
 	{ "l3_clk", &cpu_cc, 0x41 },
 	{ "pwrcl_clk", &cpu_cc, 0x21 },
 	{ "perfcl_clk", &cpu_cc, 0x25 },
@@ -207,6 +263,62 @@ static struct measure_clk sm6350_clocks[] = {
 	{ "measure_only_ipa_2x_clk", &gcc.mux, 0xec },
 	{ "measure_only_snoc_clk", &gcc.mux, 0x07 },
 
+	{ "cam_cc_bps_ahb_clk", &cam_cc, 0x12 },
+	{ "cam_cc_bps_areg_clk", &cam_cc, 0x11 },
+	{ "cam_cc_bps_axi_clk", &cam_cc, 0x10 },
+	{ "cam_cc_bps_clk", &cam_cc, 0xe },
+	{ "cam_cc_camnoc_axi_clk", &cam_cc, 0x38 },
+	{ "cam_cc_cci_0_clk", &cam_cc, 0x34 },
+	{ "cam_cc_cci_1_clk", &cam_cc, 0x35 },
+	/*
+	 * From debugcc-lagoon.c:
+	 * 0x3b measures gcc_camera_ahb_clk which is incorrect,
+	 * thus use the other CBC Mux sel to measure cam_cc_core_ahb_clk.
+	 */
+	{ "cam_cc_core_ahb_clk", &cam_cc, 0x37 },
+	{ "cam_cc_cpas_ahb_clk", &cam_cc, 0x37 },
+	{ "cam_cc_csi0phytimer_clk", &cam_cc, 0x6 },
+	{ "cam_cc_csi1phytimer_clk", &cam_cc, 0x8 },
+	{ "cam_cc_csi2phytimer_clk", &cam_cc, 0xa },
+	{ "cam_cc_csi3phytimer_clk", &cam_cc, 0xc },
+	{ "cam_cc_csiphy0_clk", &cam_cc, 0x7 },
+	{ "cam_cc_csiphy1_clk", &cam_cc, 0x9 },
+	{ "cam_cc_csiphy2_clk", &cam_cc, 0xb },
+	{ "cam_cc_csiphy3_clk", &cam_cc, 0xd },
+	{ "cam_cc_icp_clk", &cam_cc, 0x32 },
+	{ "cam_cc_icp_ts_clk", &cam_cc, 0x30 },
+	{ "cam_cc_ife_0_axi_clk", &cam_cc, 0x1e },
+	{ "cam_cc_ife_0_clk", &cam_cc, 0x18 },
+	{ "cam_cc_ife_0_cphy_rx_clk", &cam_cc, 0x1d },
+	{ "cam_cc_ife_0_csid_clk", &cam_cc, 0x1b },
+	{ "cam_cc_ife_0_dsp_clk", &cam_cc, 0x1a },
+	{ "cam_cc_ife_1_axi_clk", &cam_cc, 0x23 },
+	{ "cam_cc_ife_1_clk", &cam_cc, 0x1f },
+	{ "cam_cc_ife_1_cphy_rx_clk", &cam_cc, 0x22 },
+	{ "cam_cc_ife_1_csid_clk", &cam_cc, 0x21 },
+	{ "cam_cc_ife_1_dsp_clk", &cam_cc, 0x20 },
+	{ "cam_cc_ife_2_axi_clk", &cam_cc, 0x28 },
+	{ "cam_cc_ife_2_clk", &cam_cc, 0x24 },
+	{ "cam_cc_ife_2_cphy_rx_clk", &cam_cc, 0x27 },
+	{ "cam_cc_ife_2_csid_clk", &cam_cc, 0x26 },
+	{ "cam_cc_ife_2_dsp_clk", &cam_cc, 0x25 },
+	{ "cam_cc_ife_lite_clk", &cam_cc, 0x29 },
+	{ "cam_cc_ife_lite_cphy_rx_clk", &cam_cc, 0x2b },
+	{ "cam_cc_ife_lite_csid_clk", &cam_cc, 0x2a },
+	{ "cam_cc_ipe_0_ahb_clk", &cam_cc, 0x17 },
+	{ "cam_cc_ipe_0_areg_clk", &cam_cc, 0x16 },
+	{ "cam_cc_ipe_0_axi_clk", &cam_cc, 0x15 },
+	{ "cam_cc_ipe_0_clk", &cam_cc, 0x13 },
+	{ "cam_cc_jpeg_clk", &cam_cc, 0x2c },
+	{ "cam_cc_lrme_clk", &cam_cc, 0x36 },
+	{ "cam_cc_mclk0_clk", &cam_cc, 0x1 },
+	{ "cam_cc_mclk1_clk", &cam_cc, 0x2 },
+	{ "cam_cc_mclk2_clk", &cam_cc, 0x3 },
+	{ "cam_cc_mclk3_clk", &cam_cc, 0x4 },
+	{ "cam_cc_mclk4_clk", &cam_cc, 0x5 },
+	{ "cam_cc_soc_ahb_clk", &cam_cc, 0x3a },
+	{ "cam_cc_sys_tmr_clk", &cam_cc, 0x33 },
+
 	{ "disp_cc_mdss_ahb_clk", &disp_cc, 0x14 },
 	{ "disp_cc_mdss_byte0_clk", &disp_cc, 0xc },
 	{ "disp_cc_mdss_byte0_intf_clk", &disp_cc, 0xd },
@@ -241,6 +353,31 @@ static struct measure_clk sm6350_clocks[] = {
 	{ "gpu_cc_gx_gfx3d_clk", &gpu_cc, 0xc },
 	{ "gpu_cc_gx_gmu_clk", &gpu_cc, 0x10 },
 	{ "gpu_cc_gx_vsense_clk", &gpu_cc, 0xd },
+
+	{ "npu_cc_bto_core_clk", &npu_cc, 0x19 },
+	{ "npu_cc_bwmon_clk", &npu_cc, 0x18 },
+	{ "npu_cc_cal_hm0_cdc_clk", &npu_cc, 0xb },
+	{ "npu_cc_cal_hm0_clk", &npu_cc, 0x2 },
+	{ "npu_cc_cal_hm0_perf_cnt_clk", &npu_cc, 0xd },
+	{ "npu_cc_core_clk", &npu_cc, 0x4 },
+	{ "npu_cc_dsp_ahbm_clk", &npu_cc, 0x1c },
+	{ "npu_cc_dsp_ahbs_clk", &npu_cc, 0x1b },
+	{ "npu_cc_dsp_axi_clk", &npu_cc, 0x1e },
+	{ "npu_cc_noc_ahb_clk", &npu_cc, 0x13 },
+	{ "npu_cc_noc_axi_clk", &npu_cc, 0x12 },
+	{ "npu_cc_noc_dma_clk", &npu_cc, 0x11 },
+	{ "npu_cc_rsc_xo_clk", &npu_cc, 0x1a },
+	{ "npu_cc_s2p_clk", &npu_cc, 0x16 },
+	{ "npu_cc_xo_clk", &npu_cc, 0x1 },
+
+	{ "video_cc_iris_ahb_clk", &video_cc, 0x5 },
+	{ "video_cc_mvs0_axi_clk", &video_cc, 0x9 },
+	{ "video_cc_mvs0_core_clk", &video_cc, 0x3 },
+	{ "video_cc_mvsc_core_clk", &video_cc, 0x1 },
+	{ "video_cc_mvsc_ctl_axi_clk", &video_cc, 0x8 },
+	{ "video_cc_sleep_clk", &video_cc, 0x7 },
+	{ "video_cc_venus_ahb_clk", &video_cc, 0xc },
+	{ "video_cc_xo_clk", &video_cc, 0x6 },
 
 	{ "mccc_clk", &mc_cc, 0x50 },
 	{}
