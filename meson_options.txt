@@ -1,0 +1,5 @@
+option('dynamic-linking',
+  type: 'boolean',
+  value: false,
+  description: 'Build debugcc as a dynamically linked binary instead of static',
+)
