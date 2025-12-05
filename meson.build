@@ -59,7 +59,12 @@ debugcc_srcs += configure_file(
   output: 'platforms.c',
   configuration: platforms)
 
+debugcc_link_args = []
+if not get_option('dynamic-linking')
+  debugcc_link_args += ['-static', '-static-libgcc']
+endif
+
 executable('debugcc',
   debugcc_srcs,
-  link_args: ['-static','-static-libgcc'],
+  link_args: debugcc_link_args,
   install: true)
