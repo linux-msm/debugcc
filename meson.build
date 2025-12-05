@@ -6,8 +6,9 @@ project('debugcc',
   meson_version : '>= 0.61.0', # for install_symlink
   default_options: [
     'buildtype=release',
-    ]
-  )
+    ],
+  version: '0.1.0',
+)
 
 platforms = [
   'ipq8064',
