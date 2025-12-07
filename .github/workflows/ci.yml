@@ -86,3 +86,14 @@ jobs:
           fi
           ninja -C build
           ninja -C build install
+
+      - name: Build (dynamically linked binary)
+        run: |
+          rm -rf build
+          if [ ${{ matrix.target }} = "native" ] ; then
+            meson setup . build --werror -Ddynamic-linking=true
+          else
+            meson setup --cross-file cross.txt . build --werror -Ddynamic-linking=true
+          fi
+          ninja -C build
+          ninja -C build install
