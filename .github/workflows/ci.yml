@@ -23,15 +23,12 @@ jobs:
       fail-fast: false
       matrix:
         container:
+          - debian:stable
           - debian:testing
-          - debian:bookworm
-            #- debian:bullseye
-            #- debian:buster
-          - ubuntu:lunar
-          - ubuntu:jammy
-            #- ubuntu:focal
-            #- ubuntu:bionic
-            #- ubuntu:xenial
+          - debian:sid
+          - ubuntu:latest
+          - ubuntu:rolling
+          - ubuntu:devel
         target:
           - native
           - aarch64-linux-gnu
@@ -83,6 +80,17 @@ jobs:
             meson setup . build --werror
           else
             meson setup --cross-file cross.txt . build --werror
+          fi
+          ninja -C build
+          ninja -C build install
+
+      - name: Build (dynamically linked binary)
+        run: |
+          rm -rf build
+          if [ ${{ matrix.target }} = "native" ] ; then
+            meson setup . build --werror -Ddynamic-linking=true
+          else
+            meson setup --cross-file cross.txt . build --werror -Ddynamic-linking=true
           fi
           ninja -C build
           ninja -C build install
