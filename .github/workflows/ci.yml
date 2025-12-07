@@ -23,10 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         container:
+          - debian:stable
           - debian:testing
-          - debian:bookworm
-            #- debian:bullseye
-            #- debian:buster
           - ubuntu:lunar
           - ubuntu:jammy
             #- ubuntu:focal
