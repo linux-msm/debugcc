@@ -26,11 +26,9 @@ jobs:
           - debian:stable
           - debian:testing
           - debian:sid
-          - ubuntu:lunar
-          - ubuntu:jammy
-            #- ubuntu:focal
-            #- ubuntu:bionic
-            #- ubuntu:xenial
+          - ubuntu:latest
+          - ubuntu:rolling
+          - ubuntu:devel
         target:
           - native
           - aarch64-linux-gnu
