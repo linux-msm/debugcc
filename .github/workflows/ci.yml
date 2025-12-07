@@ -25,6 +25,7 @@ jobs:
         container:
           - debian:stable
           - debian:testing
+          - debian:sid
           - ubuntu:lunar
           - ubuntu:jammy
             #- ubuntu:focal
