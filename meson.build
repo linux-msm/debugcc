@@ -11,6 +11,7 @@ project('debugcc',
 )
 
 platforms = [
+  'hamoa',
   'ipq8064',
   'msm8936',
   'msm8974',
