@@ -20,13 +20,16 @@ struct debug_mux {
 	struct debug_mux *parent;
 	unsigned long parent_mux_val;
 
+	/* = cbcr_offset */
 	unsigned int enable_reg;
 	unsigned int enable_mask;
 
+	/* = debug_offset */
 	unsigned int mux_reg;
 	unsigned int mux_mask;
 	unsigned int mux_shift;
 
+	/* = post_div_offset */
 	unsigned int div_reg;
 	unsigned int div_shift;
 	unsigned int div_mask;
