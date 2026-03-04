@@ -12,6 +12,7 @@ project('debugcc',
 
 platforms = [
   'ipq8064',
+  'milos',
   'msm8936',
   'msm8974',
   'msm8994',
