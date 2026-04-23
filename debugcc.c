@@ -14,7 +14,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 static unsigned int measure_ticks(struct gcc_mux *gcc, unsigned int ticks)
 {

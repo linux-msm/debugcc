@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 #define GCC_BASE	0x100000
 #define GCC_SIZE	0x1f0000

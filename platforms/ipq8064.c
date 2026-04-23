@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 #define GCC_PHYS		0x900000
 

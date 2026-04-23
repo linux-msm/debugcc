@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 static struct gcc_mux gcc = {
 	.mux = {
