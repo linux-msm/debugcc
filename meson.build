@@ -11,6 +11,7 @@ project('debugcc',
 )
 
 platforms = [
+  'glymur',
   'hamoa',
   'ipq8064',
   'milos',
