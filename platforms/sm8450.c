@@ -10,7 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 /* Enabling APSS can cause Bus error issues, so do not enable them by default */
 #define ENABLE_SM8450_APSS_CLOCKS 0

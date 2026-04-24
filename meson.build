@@ -11,6 +11,7 @@ project('debugcc',
 )
 
 platforms = [
+  'glymur',
   'hamoa',
   'ipq8064',
   'milos',
@@ -44,7 +45,7 @@ platform_defs = []
 platform_array = []
 
 foreach p: platforms
-  debugcc_srcs += p + '.c'
+  debugcc_srcs += 'platforms/' + p + '.c'
   platform_defs += 'extern struct debugcc_platform ' + p + '_debugcc;'
   platform_array += '\t&' + p + '_debugcc,'
 
@@ -70,4 +71,5 @@ endif
 executable('debugcc',
   debugcc_srcs,
   link_args: debugcc_link_args,
+  include_directories : include_directories('.'),
   install: true)

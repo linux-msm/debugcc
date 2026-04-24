@@ -13,7 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "debugcc.h"
+#include <debugcc.h>
 
 #define GCC_BASE	0x01800000
 #define GCC_SIZE	0x80000
