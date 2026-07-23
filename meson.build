@@ -11,6 +11,7 @@ project('debugcc',
 )
 
 platforms = [
+  'eliza',
   'glymur',
   'hamoa',
   'ipq8064',
@@ -35,6 +36,7 @@ platforms = [
   'sm8450',
   'sm8550',
   'sm8650',
+  'sm8750',
   ]
 
 debugcc_srcs = [
